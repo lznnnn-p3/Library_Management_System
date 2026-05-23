@@ -1,0 +1,37 @@
+import request from './request'
+
+export const login = (data) => request.post('/auth/login', data)
+export const register = (data) => request.post('/auth/register', data)
+export const logout = () => request.post('/auth/logout')
+export const getDashboardStats = () => request.get('/dashboard/stats')
+export const getMenus = () => request.get('/system/menu')
+export const getAllMenus = () => request.get('/system/menu/all')
+
+export const getUserList = (params) => request.get('/system/user/list', { params })
+export const getUserRoles = (userId) => request.get(`/system/user/roles/${userId}`)
+export const addUser = (data) => request.post('/system/user', data)
+export const updateUser = (data) => request.put('/system/user', data)
+export const deleteUser = (id) => request.delete(`/system/user/${id}`)
+export const resetPassword = (id, newPassword) => request.put('/system/user/resetPassword', null, { params: { id, newPassword } })
+export const getProfile = () => request.get('/system/user/profile')
+export const updateProfile = (data) => request.put('/system/user/profile', data)
+
+export const getRoleList = () => request.get('/system/role/list')
+export const getRoleMenus = (roleId) => request.get(`/system/role/menus/${roleId}`)
+export const addRole = (data) => request.post('/system/role', data)
+export const updateRole = (data) => request.put('/system/role', data)
+export const deleteRole = (id) => request.delete(`/system/role/${id}`)
+
+export const getBookList = (params) => request.get('/book/list', { params })
+export const getBookById = (id) => request.get(`/book/${id}`)
+export const addBook = (data) => request.post('/book', data)
+export const updateBook = (data) => request.put('/book', data)
+export const deleteBook = (id) => request.delete(`/book/${id}`)
+export const importBooks = (formData) => request.post('/book/import', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
+
+export const getBorrowList = (params) => request.get('/book/borrow/list', { params })
+export const borrowBook = (bookId) => request.post('/book/borrow/borrow', null, { params: { bookId } })
+export const returnBook = (id) => request.put(`/book/borrow/return/${id}`)
+export const renewBook = (id) => request.put(`/book/borrow/renew/${id}`)
+export const getBorrowSummary = () => request.get('/book/borrow/summary')
+export const getCategoryStats = () => request.get('/book/stats/categories')
