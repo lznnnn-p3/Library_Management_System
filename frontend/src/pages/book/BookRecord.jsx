@@ -5,9 +5,9 @@ import { getBorrowList, returnBook, renewBook } from "../../services/api"
 import { useAuth } from "../../context/AuthContext"
 
 const statusMap = {
-  1: { text: "借阅中", color: "blue" },
-  2: { text: "已归还", color: "green" },
-  3: { text: "已超时", color: "red" },
+  1: { text: "借阅中", color: "processing" },
+  2: { text: "已归还", color: "success" },
+  3: { text: "已超时", color: "error" },
 }
 
 export default function BookRecord() {
@@ -52,7 +52,7 @@ export default function BookRecord() {
 
   const columns = [
     { title: "ID", dataIndex: "id", width: 60 },
-    { title: "书名", dataIndex: "bookName", width: 180 },
+    { title: "书名", dataIndex: "bookName", width: 180, render: (v) => <span style={{ fontWeight: 500 }}>{v}</span> },
     { title: "作者", dataIndex: "author", width: 100 },
     { title: "借阅人", dataIndex: "nickname", width: 100 },
     { title: "借阅日期", dataIndex: "borrowDate", width: 170 },
@@ -68,14 +68,14 @@ export default function BookRecord() {
     },
     {
       title: "操作", width: 180, render: (_, record) => (
-        <Space>
+        <Space size={4}>
           {(record.status === 1 || record.status === 3) && (
             <>
-              <Popconfirm title={"确认归还?"} onConfirm={() => handleReturn(record.id)}>
-                <Button type="link" size="small" icon={<UndoOutlined />}>{"归还"}</Button>
+              <Popconfirm title="确认归还?" onConfirm={() => handleReturn(record.id)}>
+                <Button type="link" size="small" icon={<UndoOutlined />}>归还</Button>
               </Popconfirm>
-              <Popconfirm title={"确认续借?"} onConfirm={() => handleRenew(record.id)}>
-                <Button type="link" size="small" icon={<ReloadOutlined />}>{"续借"}</Button>
+              <Popconfirm title="确认续借?" onConfirm={() => handleRenew(record.id)}>
+                <Button type="link" size="small" icon={<ReloadOutlined />}>续借</Button>
               </Popconfirm>
             </>
           )}
@@ -93,19 +93,29 @@ export default function BookRecord() {
 
   return (
     <div>
-      <Tabs activeKey={status === undefined ? "all" : String(status)} items={tabItems} onChange={handleTabChange} style={{ marginBottom: 16 }} />
-      <Table
-        rowKey="id"
-        columns={columns}
-        dataSource={data}
-        loading={loading}
-        scroll={{ x: 1200 }}
-        pagination={{
-          current: pageNum, pageSize, total,
-          onChange: (p, s) => { setPageNum(p); setPageSize(s) },
-          showSizeChanger: true, showTotal: (t) => "共 " + t + " 条",
-        }}
+      <h2 className="page-title">借阅记录</h2>
+
+      <Tabs
+        activeKey={status === undefined ? "all" : String(status)}
+        items={tabItems}
+        onChange={handleTabChange}
+        style={{ marginBottom: 16 }}
       />
+
+      <div className="content-card" style={{ borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
+        <Table
+          rowKey="id"
+          columns={columns}
+          dataSource={data}
+          loading={loading}
+          scroll={{ x: 1200 }}
+          pagination={{
+            current: pageNum, pageSize, total,
+            onChange: (p, s) => { setPageNum(p); setPageSize(s) },
+            showSizeChanger: true, showTotal: (t) => `共 ${t} 条`,
+          }}
+        />
+      </div>
     </div>
   )
 }

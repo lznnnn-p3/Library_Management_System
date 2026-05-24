@@ -96,22 +96,24 @@ export default function User() {
 
   const columns = [
     { title: "ID", dataIndex: "id", width: 60 },
-    { title: "用户名", dataIndex: "username" },
+    { title: "用户名", dataIndex: "username", render: (v) => <span style={{ fontWeight: 500 }}>{v}</span> },
     { title: "昵称", dataIndex: "nickname" },
-    { title: "邮箱", dataIndex: "email" },
-    { title: "手机号", dataIndex: "phone" },
+    { title: "邮箱", dataIndex: "email", render: (v) => <span style={{ color: 'var(--text-secondary)' }}>{v || '-'}</span> },
+    { title: "手机号", dataIndex: "phone", render: (v) => <span style={{ color: 'var(--text-secondary)' }}>{v || '-'}</span> },
     {
       title: "状态", dataIndex: "status", width: 80,
-      render: (v) => v === 1 ? <Tag color="green">{"正常"}</Tag> : <Tag color="red">{"禁用"}</Tag>,
+      render: (v) => v === 1 ? <Tag color="success">正常</Tag> : <Tag color="error">禁用</Tag>,
     },
     { title: "创建时间", dataIndex: "createTime", width: 180 },
     {
       title: "操作", width: 200, render: (_, record) => (
-        <Space>
-          <Button type="link" size="small" icon={<EditOutlined />} onClick={() => handleEdit(record)}>{"编辑"}</Button>
-          <Button type="link" size="small" icon={<KeyOutlined />} onClick={() => handleResetPwd(record.id)}>{"重置密码"}</Button>
-          <Popconfirm title={"确认删除?"} onConfirm={() => handleDelete(record.id)}>
-            <Button type="link" size="small" danger icon={<DeleteOutlined />}>{"删除"}</Button>
+        <Space size={4}>
+          <Button type="link" size="small" icon={<EditOutlined />} onClick={() => handleEdit(record)}>编辑</Button>
+          <Popconfirm title="确认重置密码为 123456?" onConfirm={() => handleResetPwd(record.id)}>
+            <Button type="link" size="small" icon={<KeyOutlined />}>重置密码</Button>
+          </Popconfirm>
+          <Popconfirm title="确认删除?" onConfirm={() => handleDelete(record.id)}>
+            <Button type="link" size="small" danger icon={<DeleteOutlined />}>删除</Button>
           </Popconfirm>
         </Space>
       ),
@@ -120,62 +122,73 @@ export default function User() {
 
   return (
     <div>
-      <div style={{ marginBottom: 16, padding: 16, background: "#fafafa", borderRadius: 8 }}>
+      <h2 className="page-title">用户管理</h2>
+
+      {/* Search Panel */}
+      <div className="search-panel">
         <Form form={searchForm} layout="horizontal" labelCol={{ style: labelStyle }}>
           <Row gutter={16}>
             <Col span={8}>
-              <Form.Item name="username" label={"用户名"} style={{ marginBottom: 16 }}>
-                <Input placeholder={"请输入"} allowClear />
+              <Form.Item name="username" label="用户名" style={{ marginBottom: 16 }}>
+                <Input placeholder="请输入" allowClear />
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item name="nickname" label={"昵称"} style={{ marginBottom: 16 }}>
-                <Input placeholder={"请输入"} allowClear />
+              <Form.Item name="nickname" label="昵称" style={{ marginBottom: 16 }}>
+                <Input placeholder="请输入" allowClear />
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item name="email" label={"邮箱"} style={{ marginBottom: 16 }}>
-                <Input placeholder={"请输入"} allowClear />
+              <Form.Item name="email" label="邮箱" style={{ marginBottom: 16 }}>
+                <Input placeholder="请输入" allowClear />
               </Form.Item>
             </Col>
           </Row>
           <Row gutter={16}>
             <Col span={8}>
-              <Form.Item name="phone" label={"手机号"} style={{ marginBottom: 16 }}>
-                <Input placeholder={"请输入"} allowClear />
+              <Form.Item name="phone" label="手机号" style={{ marginBottom: 16 }}>
+                <Input placeholder="请输入" allowClear />
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item name="status" label={"状态"} style={{ marginBottom: 16 }}>
-                <Select placeholder={"请选择"} allowClear>
-                  <Select.Option value={1}>{"正常"}</Select.Option>
-                  <Select.Option value={0}>{"禁用"}</Select.Option>
+              <Form.Item name="status" label="状态" style={{ marginBottom: 16 }}>
+                <Select placeholder="请选择" allowClear>
+                  <Select.Option value={1}>正常</Select.Option>
+                  <Select.Option value={0}>禁用</Select.Option>
                 </Select>
               </Form.Item>
             </Col>
             <Col span={8} style={{ display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
               <Space>
-                <Button type="primary" icon={<SearchOutlined />} onClick={handleSearch}>{"搜索"}</Button>
-                <Button icon={<ReloadOutlined />} onClick={handleReset}>{"重置"}</Button>
+                <Button type="primary" icon={<SearchOutlined />} onClick={handleSearch}>搜索</Button>
+                <Button icon={<ReloadOutlined />} onClick={handleReset}>重置</Button>
               </Space>
             </Col>
           </Row>
         </Form>
       </div>
-      <div style={{ marginBottom: 16, display: "flex", justifyContent: "flex-end" }}>
-        <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>{"新增用户"}</Button>
+
+      {/* Action Bar */}
+      <div className="action-bar">
+        <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>新增用户</Button>
       </div>
-      <Table
-        rowKey="id"
-        columns={columns}
-        dataSource={data}
-        loading={loading}
-        pagination={{
-          current: pageNum, pageSize, total,
-          onChange: (p, s) => { setPageNum(p); setPageSize(s) },
-          showSizeChanger: true, showTotal: (t) => "共 " + t + " 条",
-        }}
-      />
+
+      {/* Table */}
+      <div className="content-card" style={{ borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
+        <Table
+          rowKey="id"
+          columns={columns}
+          dataSource={data}
+          loading={loading}
+          pagination={{
+            current: pageNum, pageSize, total,
+            onChange: (p, s) => { setPageNum(p); setPageSize(s) },
+            showSizeChanger: true, showTotal: (t) => `共 ${t} 条`,
+          }}
+        />
+      </div>
+
+      {/* Modal */}
       <Modal
         title={editing ? "编辑用户" : "新增用户"}
         open={modalOpen}
@@ -183,31 +196,37 @@ export default function User() {
         onCancel={() => setModalOpen(false)}
         destroyOnClose
       >
-        <Form form={form} layout="vertical">
+        <Form form={form} layout="vertical" style={{ marginTop: 12 }}>
           {!editing && (
             <>
-              <Form.Item name="username" label={"用户名"} rules={[{ required: true }]}>
+              <Form.Item name="username" label="用户名" rules={[{ required: true }]}>
                 <Input />
               </Form.Item>
-              <Form.Item name="password" label={"密码"} rules={[{ required: true }]}>
+              <Form.Item name="password" label="密码" rules={[{ required: true }]}>
                 <Input.Password />
               </Form.Item>
             </>
           )}
-          <Form.Item name="nickname" label={"昵称"}>
+          <Form.Item name="nickname" label="昵称">
             <Input />
           </Form.Item>
-          <Form.Item name="email" label={"邮箱"}>
-            <Input />
-          </Form.Item>
-          <Form.Item name="phone" label={"手机号"}>
-            <Input />
-          </Form.Item>
-          <Form.Item name="status" label={"状态"} initialValue={1}>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item name="email" label="邮箱">
+                <Input />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="phone" label="手机号">
+                <Input />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Form.Item name="status" label="状态" initialValue={1}>
             <Select options={[{ label: "正常", value: 1 }, { label: "禁用", value: 0 }]} />
           </Form.Item>
-          <Form.Item name="roleIds" label={"角色"}>
-            <Select mode="multiple" placeholder={"请选择角色"}>
+          <Form.Item name="roleIds" label="角色">
+            <Select mode="multiple" placeholder="请选择角色">
               {roles.map(r => <Select.Option key={r.id} value={r.id}>{r.roleName}</Select.Option>)}
             </Select>
           </Form.Item>

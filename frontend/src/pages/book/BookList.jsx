@@ -129,32 +129,45 @@ export default function BookList() {
 
   const columns = [
     { title: "ID", dataIndex: "id", width: 60 },
-    { title: "书名", dataIndex: "bookName", width: 150 },
+    {
+      title: "书名", dataIndex: "bookName", width: 150,
+      render: (v) => <span style={{ fontWeight: 500 }}>{v}</span>,
+    },
     { title: "作者", dataIndex: "author", width: 100 },
-    { title: "ISBN", dataIndex: "isbn", width: 140 },
+    {
+      title: "ISBN", dataIndex: "isbn", width: 140,
+      render: (v) => <span style={{ fontFamily: 'monospace', fontSize: 12, color: 'var(--text-secondary)' }}>{v}</span>,
+    },
     { title: "出版社", dataIndex: "publisher", width: 120 },
-    { title: "分类", dataIndex: "category", width: 80 },
-    { title: "价格", dataIndex: "price", width: 80, render: (v) => "¥" + v },
+    {
+      title: "分类", dataIndex: "category", width: 80,
+      render: (v) => <Tag style={{ background: '#f0f0ff', color: '#5b5bd6', border: 'none' }}>{v}</Tag>,
+    },
+    { title: "价格", dataIndex: "price", width: 80, render: (v) => <span style={{ color: 'var(--color-accent)', fontWeight: 600 }}>¥{v}</span> },
     { title: "库存", dataIndex: "stock", width: 60 },
     {
       title: "状态", dataIndex: "status", width: 80,
-      render: (v) => v === 1 ? <Tag color="green">{"正常"}</Tag> : <Tag color="red">{"下架"}</Tag>,
+      render: (v) => v === 1
+        ? <Tag color="green">正常</Tag>
+        : <Tag color="red">下架</Tag>,
     },
     {
       title: "借阅", dataIndex: "borrowed", width: 80,
-      render: (v) => v ? <Tag color="blue">{"已借"}</Tag> : <Tag color="default">{"未借"}</Tag>,
+      render: (v) => v
+        ? <Tag color="blue">已借</Tag>
+        : <Tag style={{ background: '#f5f5f5', color: '#8c8c8c', border: 'none' }}>未借</Tag>,
     },
     {
       title: "操作", width: isAdmin ? 200 : 100, render: (_, record) => (
-        <Space>
-          <Popconfirm title={"确认借阅此书?"} onConfirm={() => handleBorrow(record.id)}>
-            <Button type="link" size="small" icon={<SwapOutlined />} disabled={record.stock <= 0 || record.borrowed}>{"借阅"}</Button>
+        <Space size={4}>
+          <Popconfirm title="确认借阅此书?" onConfirm={() => handleBorrow(record.id)}>
+            <Button type="link" size="small" icon={<SwapOutlined />} disabled={record.stock <= 0 || record.borrowed}>借阅</Button>
           </Popconfirm>
           {isAdmin && (
             <>
-              <Button type="link" size="small" icon={<EditOutlined />} onClick={() => handleEdit(record)}>{"编辑"}</Button>
-              <Popconfirm title={"确认删除?"} onConfirm={() => handleDelete(record.id)}>
-                <Button type="link" size="small" danger icon={<DeleteOutlined />}>{"删除"}</Button>
+              <Button type="link" size="small" icon={<EditOutlined />} onClick={() => handleEdit(record)}>编辑</Button>
+              <Popconfirm title="确认删除?" onConfirm={() => handleDelete(record.id)}>
+                <Button type="link" size="small" danger icon={<DeleteOutlined />}>删除</Button>
               </Popconfirm>
             </>
           )}
@@ -165,68 +178,79 @@ export default function BookList() {
 
   return (
     <div>
-      <div style={{ marginBottom: 16, padding: 16, background: "#fafafa", borderRadius: 8 }}>
+      <h2 className="page-title">图书管理</h2>
+
+      {/* Search Panel */}
+      <div className="search-panel">
         <Form form={searchForm} layout="horizontal" labelCol={{ style: labelStyle }}>
           <Row gutter={16}>
             <Col span={8}>
-              <Form.Item name="bookName" label={"书名"} style={{ marginBottom: 16 }}>
-                <Input placeholder={"请输入"} allowClear />
+              <Form.Item name="bookName" label="书名" style={{ marginBottom: 16 }}>
+                <Input placeholder="请输入" allowClear />
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item name="author" label={"作者"} style={{ marginBottom: 16 }}>
-                <Input placeholder={"请输入"} allowClear />
+              <Form.Item name="author" label="作者" style={{ marginBottom: 16 }}>
+                <Input placeholder="请输入" allowClear />
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item name="isbn" label={"ISBN"} style={{ marginBottom: 16 }}>
-                <Input placeholder={"请输入"} allowClear />
+              <Form.Item name="isbn" label="ISBN" style={{ marginBottom: 16 }}>
+                <Input placeholder="请输入" allowClear />
               </Form.Item>
             </Col>
           </Row>
           <Row gutter={16}>
             <Col span={8}>
-              <Form.Item name="publisher" label={"出版社"} style={{ marginBottom: 16 }}>
-                <Input placeholder={"请输入"} allowClear />
+              <Form.Item name="publisher" label="出版社" style={{ marginBottom: 16 }}>
+                <Input placeholder="请输入" allowClear />
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item name="category" label={"分类"} style={{ marginBottom: 16 }}>
-                <Select placeholder={"请选择"} allowClear>
+              <Form.Item name="category" label="分类" style={{ marginBottom: 16 }}>
+                <Select placeholder="请选择" allowClear>
                   {categories.map(c => <Select.Option key={c} value={c}>{c}</Select.Option>)}
                 </Select>
               </Form.Item>
             </Col>
             <Col span={8} style={{ display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
               <Space>
-                <Button type="primary" icon={<SearchOutlined />} onClick={handleSearch}>{"搜索"}</Button>
-                <Button icon={<ReloadOutlined />} onClick={handleReset}>{"重置"}</Button>
+                <Button type="primary" icon={<SearchOutlined />} onClick={handleSearch}>搜索</Button>
+                <Button icon={<ReloadOutlined />} onClick={handleReset}>重置</Button>
               </Space>
             </Col>
           </Row>
         </Form>
       </div>
-      <div style={{ marginBottom: 16, display: "flex", justifyContent: "flex-end" }}>
-        {isAdmin && (
+
+      {/* Action Bar */}
+      {isAdmin && (
+        <div className="action-bar">
           <Space>
-            <Button icon={<DownloadOutlined />} onClick={downloadTemplate}>{"下载模板"}</Button>
-            <Button icon={<UploadOutlined />} onClick={() => { setImportModalOpen(true); setImportResult(null) }}>{"批量导入"}</Button>
-            <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>{"新增图书"}</Button>
+            <Button icon={<DownloadOutlined />} onClick={downloadTemplate}>下载模板</Button>
+            <Button icon={<UploadOutlined />} onClick={() => { setImportModalOpen(true); setImportResult(null) }}>批量导入</Button>
+            <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>新增图书</Button>
           </Space>
-        )}
+        </div>
+      )}
+
+      {/* Table */}
+      <div className="content-card" style={{ borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
+        <Table
+          rowKey="id"
+          columns={columns}
+          dataSource={data}
+          loading={loading}
+          scroll={{ x: 1000 }}
+          pagination={{
+            current: pageNum, pageSize, total,
+            onChange: (p, s) => { setPageNum(p); setPageSize(s) },
+            showSizeChanger: true, showTotal: (t) => `共 ${t} 条`,
+          }}
+        />
       </div>
-      <Table
-        rowKey="id"
-        columns={columns}
-        dataSource={data}
-        loading={loading}
-        scroll={{ x: 1000 }}
-        pagination={{
-          current: pageNum, pageSize, total,
-          onChange: (p, s) => { setPageNum(p); setPageSize(s) },
-          showSizeChanger: true, showTotal: (t) => "共 " + t + " 条",
-        }}
-      />
+
+      {/* Add/Edit Modal */}
       <Modal
         title={editing ? "编辑图书" : "新增图书"}
         open={modalOpen}
@@ -235,43 +259,69 @@ export default function BookList() {
         width={600}
         destroyOnClose
       >
-        <Form form={form} layout="vertical">
-          <Form.Item name="bookName" label={"书名"} rules={[{ required: true }]}>
-            <Input />
-          </Form.Item>
-          <Form.Item name="author" label={"作者"}>
-            <Input />
-          </Form.Item>
-          <Form.Item name="isbn" label={"ISBN"}>
-            <Input />
-          </Form.Item>
-          <Form.Item name="publisher" label={"出版社"}>
-            <Input />
-          </Form.Item>
-          <Form.Item name="publishDate" label={"出版日期"}>
-            <Input placeholder={"格式: YYYY-MM-DD"} />
-          </Form.Item>
-          <Form.Item name="category" label={"分类"}>
-            <Select>
-              {categories.map(c => <Select.Option key={c} value={c}>{c}</Select.Option>)}
-            </Select>
-          </Form.Item>
-          <Form.Item name="price" label={"价格"}>
-            <InputNumber min={0} precision={2} style={{ width: "100%" }} />
-          </Form.Item>
-          <Form.Item name="stock" label={"库存"} initialValue={0}>
-            <InputNumber min={0} style={{ width: "100%" }} />
-          </Form.Item>
-          <Form.Item name="description" label={"简介"}>
+        <Form form={form} layout="vertical" style={{ marginTop: 12 }}>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item name="bookName" label="书名" rules={[{ required: true }]}>
+                <Input />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="author" label="作者">
+                <Input />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item name="isbn" label="ISBN">
+                <Input />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="publisher" label="出版社">
+                <Input />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item name="publishDate" label="出版日期">
+                <Input placeholder="格式: YYYY-MM-DD" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="category" label="分类">
+                <Select>
+                  {categories.map(c => <Select.Option key={c} value={c}>{c}</Select.Option>)}
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item name="price" label="价格">
+                <InputNumber min={0} precision={2} style={{ width: "100%" }} />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="stock" label="库存" initialValue={0}>
+                <InputNumber min={0} style={{ width: "100%" }} />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Form.Item name="description" label="简介">
             <Input.TextArea rows={3} />
           </Form.Item>
-          <Form.Item name="status" label={"状态"} initialValue={1}>
+          <Form.Item name="status" label="状态" initialValue={1}>
             <Select options={[{ label: "正常", value: 1 }, { label: "下架", value: 0 }]} />
           </Form.Item>
         </Form>
       </Modal>
+
+      {/* Import Modal */}
       <Modal
-        title={"批量导入图书"}
+        title="批量导入图书"
         open={importModalOpen}
         onCancel={() => setImportModalOpen(false)}
         footer={null}
@@ -279,13 +329,13 @@ export default function BookList() {
       >
         <div style={{ marginBottom: 16 }}>
           <Alert
-            message={"导入说明"}
+            message="导入说明"
             description={
-              <ul style={{ margin: 0, paddingLeft: 20 }}>
-                <li>{"仅支持 .xlsx 格式的 Excel 文件"}</li>
-                <li>{"第一行为表头，从第二行开始为数据"}</li>
-                <li>{"列顺序: 书名(必填)、作者、ISBN、出版社、分类、价格、库存、简介"}</li>
-                <li>{"分类可选: " + categories.join("、")}</li>
+              <ul style={{ margin: 0, paddingLeft: 20, lineHeight: 1.8 }}>
+                <li>仅支持 .xlsx 格式的 Excel 文件</li>
+                <li>第一行为表头，从第二行开始为数据</li>
+                <li>列顺序: 书名(必填)、作者、ISBN、出版社、分类、价格、库存、简介</li>
+                <li>分类可选: {categories.join("、")}</li>
               </ul>
             }
             type="info"
@@ -301,8 +351,8 @@ export default function BookList() {
           <p className="ant-upload-drag-icon">
             <UploadOutlined />
           </p>
-          <p className="ant-upload-text">{"点击或拖拽文件到此区域上传"}</p>
-          <p className="ant-upload-hint">{"支持 .xlsx 格式的 Excel 文件"}</p>
+          <p className="ant-upload-text">点击或拖拽文件到此区域上传</p>
+          <p className="ant-upload-hint">支持 .xlsx 格式的 Excel 文件</p>
         </Upload.Dragger>
         {importResult && (
           <div style={{ marginTop: 16 }}>
@@ -314,7 +364,7 @@ export default function BookList() {
             {importResult.errors && importResult.errors.length > 0 && (
               <div style={{ marginTop: 8, maxHeight: 150, overflow: "auto" }}>
                 {importResult.errors.map((err, idx) => (
-                  <div key={idx} style={{ color: "#ff4d4f", fontSize: 12 }}>{err}</div>
+                  <div key={idx} style={{ color: "var(--color-error)", fontSize: 12 }}>{err}</div>
                 ))}
               </div>
             )}

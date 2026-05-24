@@ -20,7 +20,14 @@ function PrivateRoute({ children }) {
 
 function Loading() {
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', minHeight: 200 }}>
+    <div style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      height: '100%',
+      minHeight: 300,
+      background: 'var(--bg-page)',
+    }}>
       <Spin size="large" />
     </div>
   )

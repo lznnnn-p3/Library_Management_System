@@ -4,9 +4,9 @@ import { UndoOutlined, ReloadOutlined, UserOutlined, SearchOutlined } from "@ant
 import { getBorrowList, returnBook, renewBook } from "../../services/api"
 
 const statusMap = {
-  1: { text: "借阅中", color: "blue" },
-  2: { text: "已归还", color: "green" },
-  3: { text: "已超时", color: "red" },
+  1: { text: "借阅中", color: "processing" },
+  2: { text: "已归还", color: "success" },
+  3: { text: "已超时", color: "error" },
 }
 
 export default function BookBorrow() {
@@ -87,8 +87,18 @@ export default function BookBorrow() {
       dataIndex: "nickname",
       render: (v, record) => (
         <Space>
-          <UserOutlined />
-          <span>{record.nickname || record.username}</span>
+          <div style={{
+            width: 28,
+            height: 28,
+            borderRadius: '50%',
+            background: 'linear-gradient(135deg, var(--color-primary), #1d4ed8)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+            <UserOutlined style={{ color: '#fff', fontSize: 12 }} />
+          </div>
+          <span style={{ fontWeight: 500 }}>{record.nickname || record.username}</span>
         </Space>
       ),
     },
@@ -102,19 +112,19 @@ export default function BookBorrow() {
       title: "借阅中",
       dataIndex: "borrowing",
       width: 100,
-      render: (v) => <Tag color="blue">{v}</Tag>,
+      render: (v) => <Tag color="processing">{v}</Tag>,
     },
     {
       title: "已超时",
       dataIndex: "overdue",
       width: 100,
-      render: (v) => v > 0 ? <Tag color="red">{v}</Tag> : <Tag>0</Tag>,
+      render: (v) => v > 0 ? <Tag color="error">{v}</Tag> : <Tag>0</Tag>,
     },
   ]
 
   const expandedRowRender = (userRecord) => {
     const columns = [
-      { title: "书名", dataIndex: "bookName", width: 180 },
+      { title: "书名", dataIndex: "bookName", width: 180, render: (v) => <span style={{ fontWeight: 500 }}>{v}</span> },
       { title: "作者", dataIndex: "author", width: 100 },
       { title: "借阅日期", dataIndex: "borrowDate", width: 170 },
       { title: "应还日期", dataIndex: "dueDate", width: 170 },
@@ -128,14 +138,14 @@ export default function BookBorrow() {
       },
       {
         title: "操作", width: 180, render: (_, record) => (
-          <Space>
+          <Space size={4}>
             {(record.status === 1 || record.status === 3) && (
               <>
-                <Popconfirm title={"确认归还?"} onConfirm={() => handleReturn(record.id)}>
-                  <Button type="link" size="small" icon={<UndoOutlined />}>{"归还"}</Button>
+                <Popconfirm title="确认归还?" onConfirm={() => handleReturn(record.id)}>
+                  <Button type="link" size="small" icon={<UndoOutlined />}>归还</Button>
                 </Popconfirm>
-                <Popconfirm title={"确认续借?"} onConfirm={() => handleRenew(record.id)}>
-                  <Button type="link" size="small" icon={<ReloadOutlined />}>{"续借"}</Button>
+                <Popconfirm title="确认续借?" onConfirm={() => handleRenew(record.id)}>
+                  <Button type="link" size="small" icon={<ReloadOutlined />}>续借</Button>
                 </Popconfirm>
               </>
             )}
@@ -163,7 +173,15 @@ export default function BookBorrow() {
 
   return (
     <div>
-      <Tabs activeKey={String(status)} items={tabItems} onChange={handleTabChange} style={{ marginBottom: 16 }} />
+      <h2 className="page-title">借阅管理</h2>
+
+      <Tabs
+        activeKey={String(status)}
+        items={tabItems}
+        onChange={handleTabChange}
+        style={{ marginBottom: 16 }}
+      />
+
       <div style={{ marginBottom: 16 }}>
         <Input.Search
           placeholder="搜索用户昵称或用户名"
@@ -174,22 +192,25 @@ export default function BookBorrow() {
           onSearch={(v) => setUserSearch(v)}
         />
       </div>
-      <Table
-        rowKey="userId"
-        columns={userColumns}
-        dataSource={userDataSource}
-        loading={loading}
-        expandable={{
-          expandedRowRender,
-          expandedRowKeys,
-          onExpandedRowsChange: (keys) => setExpandedRowKeys(keys),
-        }}
-        pagination={{
-          current: pageNum, pageSize, total: userDataSource.length,
-          onChange: (p, s) => { setPageNum(p); setPageSize(s) },
-          showSizeChanger: true, showTotal: (t) => "共 " + t + " 人",
-        }}
-      />
+
+      <div className="content-card" style={{ borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
+        <Table
+          rowKey="userId"
+          columns={userColumns}
+          dataSource={userDataSource}
+          loading={loading}
+          expandable={{
+            expandedRowRender,
+            expandedRowKeys,
+            onExpandedRowsChange: (keys) => setExpandedRowKeys(keys),
+          }}
+          pagination={{
+            current: pageNum, pageSize, total: userDataSource.length,
+            onChange: (p, s) => { setPageNum(p); setPageSize(s) },
+            showSizeChanger: true, showTotal: (t) => `共 ${t} 人`,
+          }}
+        />
+      </div>
     </div>
   )
 }
