@@ -13,6 +13,7 @@ import {
   LogoutOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
+  NotificationOutlined,
 } from "@ant-design/icons"
 import { useAuth } from "../context/AuthContext"
 
@@ -27,6 +28,7 @@ const iconMap = {
   UnorderedListOutlined: <UnorderedListOutlined />,
   SwapOutlined: <SwapOutlined />,
   FileTextOutlined: <FileTextOutlined />,
+  NotificationOutlined: <NotificationOutlined />,
 }
 
 function buildMenuItems(menus) {

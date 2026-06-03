@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react"
-import { Card, Col, Row, Statistic, Table, Tag } from "antd"
-import { BookOutlined, UserOutlined, TeamOutlined, SwapOutlined, ClockCircleOutlined, CheckCircleOutlined } from "@ant-design/icons"
-import { getDashboardStats } from "../services/api"
+import { Card, Carousel, Col, Row, Statistic, Table, Tag } from "antd"
+import { BookOutlined, UserOutlined, TeamOutlined, SwapOutlined, ClockCircleOutlined, CheckCircleOutlined, NotificationOutlined } from "@ant-design/icons"
+import { getDashboardStats, getLatestAnnouncements } from "../services/api"
 import { useAuth } from "../context/AuthContext"
 
 const categoryColors = {
@@ -27,12 +27,15 @@ export default function Dashboard() {
   const { user } = useAuth()
   const isAdmin = user?.roles?.includes("admin")
   const [stats, setStats] = useState(null)
+  const [announcements, setAnnouncements] = useState([])
   const fetchedRef = useRef(false)
+  const carouselRef = useRef(null)
 
   useEffect(() => {
     if (fetchedRef.current) return
     fetchedRef.current = true
     getDashboardStats().then(res => setStats(res.data)).catch(() => {})
+    getLatestAnnouncements(3).then(res => setAnnouncements(res.data || [])).catch(() => {})
   }, [])
 
   if (!stats) return null
@@ -73,6 +76,40 @@ export default function Dashboard() {
   return (
     <div>
       <h2 className="page-title">首页概览</h2>
+
+      {/* Announcements Carousel */}
+      {announcements.length > 0 && (
+        <Card bordered={false} className="content-card" style={{ marginBottom: 16, background: 'linear-gradient(135deg, #fffbeb, #fef3c7)' }}
+          onWheel={(e) => {
+            if (!carouselRef.current) return
+            if (e.deltaY > 0) carouselRef.current.next()
+            else if (e.deltaY < 0) carouselRef.current.prev()
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+            <NotificationOutlined style={{ color: '#d97706', fontSize: 18 }} />
+            <span style={{ fontWeight: 600, fontSize: 15, color: '#92400e' }}>公告通知</span>
+          </div>
+          <style>{`
+            .announcement-carousel .slick-dots { bottom: -8px; }
+            .announcement-carousel .slick-dots li button { background: #92400e; opacity: 0.4; }
+            .announcement-carousel .slick-dots li.slick-active button { background: #d97706; opacity: 1; }
+          `}</style>
+          <Carousel className="announcement-carousel" ref={carouselRef} autoplay autoplaySpeed={4000} dots={announcements.length > 1}>
+            {announcements.map(item => (
+              <div key={item.id}>
+                <div style={{ padding: '0 0 8px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                    {item.isTop === 1 && <Tag color="orange" style={{ margin: 0 }}>置顶</Tag>}
+                    <span style={{ fontWeight: 600, fontSize: 15, color: '#1c1917' }}>{item.title}</span>
+                  </div>
+                  <div style={{ color: '#57534e', fontSize: 13, lineHeight: 1.8 }}>{item.content}</div>
+                </div>
+              </div>
+            ))}
+          </Carousel>
+        </Card>
+      )}
 
       {/* Stat Cards */}
       <Row gutter={[16, 16]}>

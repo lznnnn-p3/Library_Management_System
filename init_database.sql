@@ -112,6 +112,20 @@ CREATE TABLE book_borrow (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='借阅记录表';
 
 -- =============================================
+-- 8. 公告表 announcement
+-- =============================================
+DROP TABLE IF EXISTS announcement;
+CREATE TABLE announcement (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '公告ID',
+    title VARCHAR(200) NOT NULL COMMENT '标题',
+    content TEXT NOT NULL COMMENT '内容',
+    is_top TINYINT DEFAULT 0 COMMENT '是否置顶(1:置顶 0:不置顶)',
+    status TINYINT DEFAULT 1 COMMENT '状态(1:已发布 0:已下架)',
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='公告表';
+
+-- =============================================
 -- 预置数据
 -- =============================================
 
@@ -155,6 +169,24 @@ INSERT INTO sys_role_menu (role_id, menu_id) VALUES
 -- 角色菜单关联 (普通用户只有首页和图书管理)
 INSERT INTO sys_role_menu (role_id, menu_id) VALUES
 (2, 1), (2, 3), (2, 31), (2, 32), (2, 33);
+
+-- 公告管理菜单
+INSERT INTO sys_menu (id, menu_name, parent_id, path, component, perms, menu_type, icon, sort_order, status) VALUES
+(4, '公告管理', 0, '/announcement', '', 'announcement', 'M', 'NotificationOutlined', 4, 1),
+(41, '公告列表', 4, '/announcement/list', 'announcement/AnnouncementList', 'announcement:list', 'C', 'UnorderedListOutlined', 1, 1);
+
+-- 管理员拥有公告管理菜单
+INSERT INTO sys_role_menu (role_id, menu_id) VALUES
+(1, 4), (1, 41);
+
+-- 插入示例公告
+INSERT INTO announcement (title, content, is_top, status) VALUES
+('图书馆端午节开放通知', '各位读者：端午节期间（6月8日-6月10日）图书馆正常开放，开放时间为 9:00-17:00。6月11日恢复正常作息时间。祝大家端午安康！', 1, 1),
+('新书上架通知', '本月新增图书200余册，涵盖计算机科学、文学小说、历史哲学等多个类别，欢迎广大读者前来借阅。新书专区位于图书馆二楼东侧。', 1, 1),
+('借阅规则调整公告', '为提高图书流通效率，自即日起单次借阅期限由30天调整为14天，续借次数不变。已借出图书按原规则执行，请各位读者合理安排阅读时间。', 0, 1),
+('图书馆WiFi升级完成', '图书馆无线网络已完成升级改造，覆盖全馆所有区域。网络名称：Library-Free，无需密码直接连接。如有网络问题请联系一楼服务台。', 0, 1),
+('年度图书推荐活动开始', '2026年度"你推荐，我采购"活动正式开始！读者可在一楼服务台填写推荐书单，被采纳的推荐者可获得精美书签一套。活动截止日期：2026年7月31日。', 0, 1),
+('系统维护通知（已下架）', '图书馆管理系统将于本周六凌晨2:00-6:00进行例行维护，届时系统暂停服务。', 0, 0);
 
 -- 插入示例图书
 INSERT INTO book_info (book_name, author, isbn, publisher, publish_date, category, price, stock, description, status) VALUES
